@@ -3,7 +3,7 @@ let fires = null;
 let lastFireTime = 0;
 let isRecoiling = false; // 是否正在后座力中
 let isHit = false; // 是否正在被撞击中
-let tripleShotActive = false; // 是否激活三行子弹
+let tripleShotActive = false; // 是否激活分裂子弹
 const FIRE_COOLDOWN = 200; // 发射冷却时间(毫秒)
 const RECOIL_DISTANCE = 5; // 后座力距离
 const RECOIL_DURATION = 50; // 后座力持续时间(毫秒)
@@ -36,7 +36,7 @@ export function createFire(scene, playerSprite, fireGroup) {
 	}
 
 	if (tripleShotActive) {
-		// 三行子弹
+		// 分裂子弹
 		// 中间
 		const fire1 = fireGroup.create(playerSprite.x, playerSprite.y - 20, "fire");
 		fire1.setScale(0.8);
@@ -169,17 +169,17 @@ export function playerHitAnimation(scene, playerSprite) {
 	});
 }
 
-// 激活三行子弹
+// 激活分裂子弹
 export function activateTripleShot() {
 	tripleShotActive = true;
 }
 
-// 停用三行子弹
+// 停用分裂子弹
 export function deactivateTripleShot() {
 	tripleShotActive = false;
 }
 
-// 获取三行子弹状态
+// 获取分裂子弹状态
 export function isTripleShotActive() {
 	return tripleShotActive;
 }

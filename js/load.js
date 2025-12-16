@@ -5,11 +5,16 @@ export function preload() {
 	this.load.image("enemy", "assets/enemy.png");
 	this.load.image("bonus", "assets/bonus.png");
 	this.load.image("bullet", "assets/bullet.png");
+	this.load.image("bossbullet", "assets/pixel.png");
 
 	// enemy2.png是左右排列的精灵图（112x40），包含2帧
 	this.load.spritesheet("enemy2", "assets/enemy2.png", {
 		frameHeight: 40,
 		frameWidth: 28
+	});
+	this.load.spritesheet("boss", "assets/boss.png", {
+		frameHeight: 36,
+		frameWidth: 32
 	});
 }
 
@@ -19,6 +24,12 @@ export function createAnimations(scene) {
 		frameRate: 10,
 		frames: scene.anims.generateFrameNumbers("enemy2", { end: 1, start: 0 }),
 		key: "enemy2-fly",
+		repeat: -1
+	});
+	scene.anims.create({
+		frameRate: 10,
+		frames: scene.anims.generateFrameNumbers("boss", { end: 1, start: 0 }),
+		key: "boss-fly",
 		repeat: -1
 	});
 }
