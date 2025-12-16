@@ -20,6 +20,20 @@ import {
 	cleanUpBossBullets
 } from "./enemy.js";
 
+// 移动端检测函数
+function isMobile() {
+	// 检测 User Agent
+	const userAgentCheck = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+	// 检测触摸支持
+	const touchCheck = ("ontouchstart" in window) || (navigator.maxTouchPoints > 0);
+
+	// 检测屏幕宽度
+	const screenCheck = window.innerWidth <= 768;
+
+	return userAgentCheck || (touchCheck && screenCheck);
+}
+
 const config = {
 	backgroundColor: "#000000ff",
 	height: 500,
@@ -63,6 +77,12 @@ let bossSpawned = false; // boss是否已经出现
 let currentBoss = null; // 当前的boss对象
 let bossShootTimer = null; // Boss射击计时器
 
+// 移动端触摸控制相关变量
+const isMobileDevice = isMobile();
+let leftBtnPressed = false;
+let rightBtnPressed = false;
+let autoShootTimer = null; // 移动端自动射击计时器
+
 function create() {
 	// 创建背景图
 	background = this.add.image(150, 250, "background");
@@ -72,6 +92,162 @@ function create() {
 
 	// 创建键盘监听
 	cursors = this.input.keyboard.createCursorKeys();
+
+	// 如果是移动端，设置触摸控制
+	if (isMobileDevice) {
+		setupTouchControls(this);
+	}
+
+	// 设置重新开始按钮
+	setupRestartButton(this);
+}
+
+// 设置重新开始按钮
+function setupRestartButton(scene) {
+	const btnRestart = document.getElementById("btn-restart");
+
+	if (btnRestart) {
+		const restartGame = () => {
+			// 重新加载页面
+			window.location.reload();
+		};
+
+		// 移动端使用 touchstart
+		btnRestart.addEventListener("touchstart", (e) => {
+			e.preventDefault();
+			restartGame();
+		});
+
+		// PC端使用 click
+		btnRestart.addEventListener("click", (e) => {
+			e.preventDefault();
+			restartGame();
+		});
+	}
+}
+
+// 显示重新开始按钮
+function showRestartButton() {
+	const btnRestart = document.getElementById("btn-restart");
+	if (btnRestart) {
+		btnRestart.classList.remove("hidden");
+	}
+}
+
+// 设置移动端按钮控制
+function setupTouchControls(scene) {
+	const btnLeft = document.getElementById("btn-left");
+	const btnRight = document.getElementById("btn-right");
+	const btnStart = document.getElementById("btn-start");
+
+	// 开始按钮事件
+	if (btnStart) {
+		btnStart.addEventListener("touchstart", (e) => {
+			e.preventDefault();
+			if (!gameStarted) {
+				gameStarted = true;
+				console.log("游戏开始（移动端）");
+				gameStart.call(scene);
+
+				// 隐藏开始按钮
+				btnStart.classList.add("hidden");
+
+				// 开始自动射击
+				if (!autoShootTimer) {
+					autoShootTimer = scene.time.addEvent({
+						callback: () => {
+							if (player && player.active && gameStarted && !gameOver) {
+								const fire = fires.create(player.x, player.y - 20, "fire");
+								fire.setVelocityY(-300);
+								fire.setScale(0.5);
+							}
+						},
+						delay: 200,
+						loop: true
+					});
+				}
+			}
+		});
+
+		// 支持点击事件（某些设备）
+		btnStart.addEventListener("click", (e) => {
+			e.preventDefault();
+			if (!gameStarted) {
+				gameStarted = true;
+				console.log("游戏开始（移动端）");
+				gameStart.call(scene);
+
+				btnStart.classList.add("hidden");
+
+				if (!autoShootTimer) {
+					autoShootTimer = scene.time.addEvent({
+						callback: () => {
+							if (player && player.active && gameStarted && !gameOver) {
+								const fire = fires.create(player.x, player.y - 20, "fire");
+								fire.setVelocityY(-300);
+								fire.setScale(0.5);
+							}
+						},
+						delay: 200,
+						loop: true
+					});
+				}
+			}
+		});
+	}
+
+	// 左按钮事件
+	if (btnLeft) {
+		btnLeft.addEventListener("touchstart", (e) => {
+			e.preventDefault();
+			leftBtnPressed = true;
+		});
+
+		btnLeft.addEventListener("touchend", (e) => {
+			e.preventDefault();
+			leftBtnPressed = false;
+		});
+
+		btnLeft.addEventListener("touchcancel", (e) => {
+			e.preventDefault();
+			leftBtnPressed = false;
+		});
+	}
+
+	// 右按钮事件
+	if (btnRight) {
+		btnRight.addEventListener("touchstart", (e) => {
+			e.preventDefault();
+			rightBtnPressed = true;
+		});
+
+		btnRight.addEventListener("touchend", (e) => {
+			e.preventDefault();
+			rightBtnPressed = false;
+		});
+
+		btnRight.addEventListener("touchcancel", (e) => {
+			e.preventDefault();
+			rightBtnPressed = false;
+		});
+	}
+}
+
+// 移动端玩家移动控制
+function mobilePlayerMove(player) {
+	if (!player || !player.active) return;
+
+	const speed = 4;
+	const minX = 15;
+	const maxX = 285;
+
+	if (leftBtnPressed) {
+		player.x = Math.max(player.x - speed, minX);
+	}
+
+	if (rightBtnPressed) {
+		player.x = Math.min(player.x + speed, maxX);
+	}
 }
 
 function gameStart() {
@@ -254,7 +430,24 @@ function hitPlayer(player, enemy) {
 		console.log("游戏结束");
 		this.physics.pause();
 		gameOver = true;
-		gameOverText = this.add.text(100, 150, " Game Over\n\n\n按下F5重新开始", { fill: "#fff", fontSize: "16px" });
+
+		// 根据设备显示不同的提示文字
+		if (isMobileDevice) {
+			gameOverText = this.add.text(85, 180, "Game Over", {
+				fill: "#fff",
+				fontSize: "24px",
+				fontStyle: "bold"
+			});
+		} else {
+			gameOverText = this.add.text(85, 180, "Game Over", {
+				fill: "#fff",
+				fontSize: "24px",
+				fontStyle: "bold"
+			});
+		}
+
+		// 显示重新开始按钮
+		showRestartButton();
 	}
 }
 
@@ -274,7 +467,24 @@ function hitPlayerByBossBullet(player, bullet) {
 		console.log("游戏结束");
 		this.physics.pause();
 		gameOver = true;
-		gameOverText = this.add.text(100, 150, " Game Over\n\n\n按下F5重新开始", { fill: "#fff", fontSize: "16px" });
+
+		// 根据设备显示不同的提示文字
+		if (isMobileDevice) {
+			gameOverText = this.add.text(85, 180, "Game Over", {
+				fill: "#fff",
+				fontSize: "24px",
+				fontStyle: "bold"
+			});
+		} else {
+			gameOverText = this.add.text(85, 180, "Game Over", {
+				fill: "#fff",
+				fontSize: "24px",
+				fontStyle: "bold"
+			});
+		}
+
+		// 显示重新开始按钮
+		showRestartButton();
 	}
 }
 
@@ -414,15 +624,22 @@ function updatePowerUpTimer(scene) {
 
 function update() {
 	if (!gameStarted) {
-		// 游戏未开始,检测上键
-		if (cursors.up.isDown) {
+		// 游戏未开始,检测上键或触摸（PC端）
+		if (!isMobileDevice && cursors.up.isDown) {
 			gameStarted = true;
 			console.log("游戏开始");
 			gameStart.call(this);
 		}
+		// 移动端通过触摸事件启动，在 setupTouchControls 中处理
 	} else {
-		// 玩家移动和射击
-		playerMove(player, cursors, this, fires);
+		// 根据设备类型选择不同的移动控制方式
+		if (isMobileDevice) {
+			// 移动端：使用触摸控制
+			mobilePlayerMove(player);
+		} else {
+			// PC端：使用键盘控制
+			playerMove(player, cursors, this, fires);
+		}
 
 		// 清理飞出屏幕的子弹
 		cleanUpFires(fires);
