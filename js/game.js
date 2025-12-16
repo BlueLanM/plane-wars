@@ -119,7 +119,7 @@ function gameStart() {
 	// 开始生成敌人
 	startEnemySpawner(this, enemies);
 
-	// 添加碰撞检测：子弹 敌人
+	// 添加碰撞检测
 	this.physics.add.overlap(fires, enemies, hitEnemy, null, this);
 	this.physics.add.overlap(player, enemies, hitPlayer, null, this);
 	this.physics.add.overlap(player, bonuses, collectBonus, null, this);
