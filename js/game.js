@@ -226,8 +226,8 @@ function hitEnemy(fire, enemy) {
 		score += 10;
 		scoreText.setText("分数: " + score);
 
-		// 检查是否应该生成boss，击败25个敌人后生成boss
-		if (enemiesKilled >= 25 && !bossSpawned) {
+		// 检查是否应该生成boss，击败10个敌人后生成boss
+		if (enemiesKilled >= 10 && !bossSpawned) {
 			bossSpawned = true;
 			currentBoss = spawnBoss(this, enemies);
 
