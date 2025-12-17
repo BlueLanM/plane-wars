@@ -14,7 +14,7 @@ body {
 	background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%);
 	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
-/* 动态背景效果 */
+/* 动态背景效果 - 优化版本 */
 body::before {
 	position: absolute;
 	left: 0;
@@ -23,69 +23,37 @@ body::before {
 	bottom: 0;
 	z-index: -1;
 	background: 
-		radial-gradient(circle at 20% 50%, rgba(255, 0, 0, 0.15) 0%, transparent 50%),
-		radial-gradient(circle at 80% 80%, rgba(255, 69, 0, 0.12) 0%, transparent 50%),
-		radial-gradient(circle at 40% 20%, rgba(255, 215, 0, 0.08) 0%, transparent 50%);
+		radial-gradient(circle at 20% 50%, rgba(255, 0, 0, 0.1) 0%, transparent 50%),
+		radial-gradient(circle at 80% 80%, rgba(255, 69, 0, 0.08) 0%, transparent 50%);
 	content: '';
-	animation: backgroundShift 10s ease-in-out infinite alternate;
-}
-@keyframes backgroundShift {
-	0% {
-		transform: translateY(0) scale(1);
-	}
-	100% {
-		transform: translateY(-20px) scale(1.05);
-	}
+	/* 移除动画以提升性能 */
 }
 .title {
 	margin-bottom: 30px;
 	text-shadow: 
-		0 0 10px rgba(255, 0, 0, 1),
-		0 0 20px rgba(255, 69, 0, 0.8),
-		0 0 30px rgba(255, 140, 0, 0.6),
-		0 0 40px rgba(255, 0, 0, 0.5),
-		0 0 70px rgba(255, 0, 0, 0.4),
-		0 0 100px rgba(255, 0, 0, 0.3),
+		0 0 10px rgba(255, 0, 0, 0.8),
+		0 0 20px rgba(255, 69, 0, 0.6),
+		0 0 30px rgba(255, 0, 0, 0.4),
 		0 4px 6px rgba(0, 0, 0, 0.8);
 	text-transform: uppercase;
 	font-weight: 900;
 	font-size: 56px;
 	color: #fff;
 	letter-spacing: 6px;
-	animation: titlePulse 1.5s ease-in-out infinite, titleShake 0.5s ease-in-out infinite;
+	/* 使用GPU加速 */
+	will-change: transform;
+	transform: translateZ(0);
+	/* 只保留一个简单动画 */
+	animation: titlePulse 2s ease-in-out infinite;
 }
 @keyframes titlePulse {
 	0%, 100% {
-		text-shadow: 
-			0 0 10px rgba(255, 0, 0, 1),
-			0 0 20px rgba(255, 69, 0, 0.8),
-			0 0 30px rgba(255, 140, 0, 0.6),
-			0 0 40px rgba(255, 0, 0, 0.5),
-			0 0 70px rgba(255, 0, 0, 0.4),
-			0 4px 6px rgba(0, 0, 0, 0.8);
+		opacity: 0.9;
 		transform: scale(1);
 	}
 	50% {
-		text-shadow: 
-			0 0 20px rgba(255, 0, 0, 1),
-			0 0 30px rgba(255, 69, 0, 1),
-			0 0 40px rgba(255, 140, 0, 0.8),
-			0 0 60px rgba(255, 0, 0, 0.7),
-			0 0 90px rgba(255, 0, 0, 0.6),
-			0 0 120px rgba(255, 0, 0, 0.5),
-			0 4px 8px rgba(0, 0, 0, 0.9);
-		transform: scale(1.05);
-	}
-}
-@keyframes titleShake {
-	0%, 100% {
-		transform: translateX(0) translateY(0) rotate(0deg);
-	}
-	25% {
-		transform: translateX(-2px) translateY(1px) rotate(-0.5deg);
-	}
-	75% {
-		transform: translateX(2px) translateY(-1px) rotate(0.5deg);
+		opacity: 1;
+		transform: scale(1.02);
 	}
 }
 .subtitle {
@@ -94,21 +62,11 @@ body::before {
 	border: 2px solid rgba(255, 69, 0, 0.5);
 	border-radius: 25px;
 	background: rgba(0, 0, 0, 0.6);
-	box-shadow: 
-		0 4px 15px rgba(255, 0, 0, 0.3),
-		inset 0 0 20px rgba(255, 69, 0, 0.1);
-	backdrop-filter: blur(10px);
+	box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+	backdrop-filter: blur(5px);
 	font-size: 18px;
 	color: #f0f0f0;
-	animation: subtitleFloat 3s ease-in-out infinite;
-}
-@keyframes subtitleFloat {
-	0%, 100% {
-		transform: translateY(0);
-	}
-	50% {
-		transform: translateY(-5px);
-	}
+	/* 移除动画 */
 }
 /* 移动端控制按钮样式 */
 #mobile-controls {
@@ -128,11 +86,9 @@ body::before {
 	padding: 15px 25px;
 	border: 2px solid rgba(255, 69, 0, 0.3);
 	border-radius: 30px;
-	background: rgba(0, 0, 0, 0.7);
-	box-shadow: 
-		0 8px 32px rgba(0, 0, 0, 0.6),
-		inset 0 0 20px rgba(255, 0, 0, 0.1);
-	backdrop-filter: blur(10px);
+	background: rgba(0, 0, 0, 0.8);
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+	backdrop-filter: blur(3px);
 	gap: 20px;
 }
 .control-btn {
@@ -145,38 +101,20 @@ body::before {
 	border-radius: 50%;
 	width: 75px;
 	height: 75px;
-	background: linear-gradient(135deg, rgba(20, 20, 20, 0.9), rgba(40, 40, 40, 0.9));
-	box-shadow: 
-		0 4px 15px rgba(255, 0, 0, 0.4),
-		inset 0 0 10px rgba(255, 69, 0, 0.2);
+	background: rgba(20, 20, 20, 0.95);
+	box-shadow: 0 4px 15px rgba(255, 0, 0, 0.4);
 	cursor: pointer;
 	user-select: none;
 	font-size: 32px;
 	color: #ff4500;
-	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	/* GPU加速 */
+	will-change: transform;
+	transition: transform 0.1s, box-shadow 0.1s;
 	-webkit-tap-highlight-color: transparent;
 }
-.control-btn::before {
-	position: absolute;
-	left: 50%;
-	top: 50%;
-	border-radius: 50%;
-	width: 0;
-	height: 0;
-	background: rgba(255, 255, 255, 0.3);
-	content: '';
-	transform: translate(-50%, -50%);
-	transition: width 0.5s, height 0.5s;
-}
-.control-btn:active::before {
-	width: 100%;
-	height: 100%;
-}
 .control-btn:active {
-	background: linear-gradient(135deg, rgba(40, 40, 40, 1), rgba(60, 20, 0, 1));
-	box-shadow: 
-		0 2px 8px rgba(255, 0, 0, 0.6),
-		inset 0 0 15px rgba(255, 69, 0, 0.4);
+	background: rgba(60, 20, 0, 1);
+	box-shadow: 0 2px 8px rgba(255, 0, 0, 0.6);
 	transform: scale(0.92);
 }
 .start-btn {
@@ -185,10 +123,8 @@ body::before {
 	padding: 16px 45px;
 	border: 3px solid rgba(255, 69, 0, 0.9);
 	border-radius: 50px;
-	background: linear-gradient(135deg, rgba(20, 20, 20, 0.95), rgba(40, 40, 40, 1));
-	box-shadow: 
-		0 6px 20px rgba(255, 0, 0, 0.5),
-		inset 0 0 15px rgba(255, 69, 0, 0.2);
+	background: rgba(30, 30, 30, 0.95);
+	box-shadow: 0 6px 20px rgba(255, 0, 0, 0.5);
 	cursor: pointer;
 	user-select: none;
 	text-transform: uppercase;
@@ -196,27 +132,13 @@ body::before {
 	font-size: 20px;
 	color: #ff6347;
 	letter-spacing: 1px;
-	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	will-change: transform;
+	transition: transform 0.1s, box-shadow 0.1s;
 	-webkit-tap-highlight-color: transparent;
 }
-.start-btn::before {
-	position: absolute;
-	left: -100%;
-	top: 0;
-	width: 100%;
-	height: 100%;
-	background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-	content: '';
-	transition: left 0.5s;
-}
-.start-btn:hover::before {
-	left: 100%;
-}
 .start-btn:active {
-	background: linear-gradient(135deg, rgba(40, 40, 40, 1), rgba(60, 20, 0, 1));
-	box-shadow: 
-		0 3px 10px rgba(255, 0, 0, 0.6),
-		inset 0 0 20px rgba(255, 69, 0, 0.4);
+	background: rgba(60, 20, 0, 1);
+	box-shadow: 0 3px 10px rgba(255, 0, 0, 0.6);
 	transform: scale(0.95);
 }
 .start-btn.hidden {
@@ -229,10 +151,8 @@ body::before {
 	padding: 16px 45px;
 	border: 3px solid rgba(255, 0, 0, 0.9);
 	border-radius: 50px;
-	background: linear-gradient(135deg, rgba(139, 0, 0, 1), rgba(100, 0, 0, 1));
-	box-shadow: 
-		0 6px 20px rgba(255, 0, 0, 0.5),
-		inset 0 0 15px rgba(255, 69, 0, 0.2);
+	background: rgba(139, 0, 0, 1);
+	box-shadow: 0 6px 20px rgba(255, 0, 0, 0.5);
 	cursor: pointer;
 	user-select: none;
 	text-transform: uppercase;
@@ -240,52 +160,22 @@ body::before {
 	font-size: 20px;
 	color: #fff;
 	letter-spacing: 1px;
-	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-	animation: restartPulse 1.5s ease-in-out infinite;
-}
-@keyframes restartPulse {
-	0%, 100% {
-		box-shadow: 
-			0 6px 20px rgba(255, 0, 0, 0.5),
-			inset 0 0 15px rgba(255, 69, 0, 0.2);
-	}
-	50% {
-		box-shadow: 
-			0 6px 30px rgba(255, 0, 0, 0.8),
-			0 0 40px rgba(255, 0, 0, 0.6),
-			inset 0 0 20px rgba(255, 69, 0, 0.3);
-	}
+	/* 移除持续动画 */
+	will-change: transform;
+	transition: transform 0.1s, box-shadow 0.1s;
 }
 .restart-btn::before {
 	margin-right: 5px;
 	content: '🔄 ';
 }
-.restart-btn::after {
-	position: absolute;
-	left: -100%;
-	top: 0;
-	width: 100%;
-	height: 100%;
-	background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-	content: '';
-	transition: left 0.5s;
-}
 .restart-btn:hover {
-	background: linear-gradient(135deg, rgba(200, 0, 0, 1), rgba(139, 0, 0, 1));
-	box-shadow: 
-		0 8px 35px rgba(255, 0, 0, 0.8),
-		0 0 50px rgba(255, 0, 0, 0.6),
-		inset 0 0 25px rgba(255, 69, 0, 0.4);
+	background: rgba(180, 0, 0, 1);
+	box-shadow: 0 8px 30px rgba(255, 0, 0, 0.7);
 	transform: translateY(-2px);
 }
-.restart-btn:hover::after {
-	left: 100%;
-}
 .restart-btn:active {
-	background: linear-gradient(135deg, rgba(100, 0, 0, 1), rgba(70, 0, 0, 1));
-	box-shadow: 
-		0 4px 15px rgba(255, 0, 0, 0.7),
-		inset 0 0 20px rgba(255, 69, 0, 0.4);
+	background: rgba(100, 0, 0, 1);
+	box-shadow: 0 4px 15px rgba(255, 0, 0, 0.7);
 	transform: translateY(0) scale(0.97);
 }
 .restart-btn.hidden {
